@@ -1,4 +1,7 @@
-FROM samuela/ompl
+# Extends the build environment with a number of useful python packages and
+# such.
+
+FROM samuela/ompl-buildenv
 
 # Install pip and virtualenv
 RUN apt-get update && \
