@@ -1,12 +1,6 @@
-#!/usr/bin/env python
 from ompl import util as ou
 from ompl import base as ob
 from ompl import geometric as og
-
-import matplotlib.pyplot as plt
-import numpy as np
-import random
-import time
 
 from pyDPMP.messagepassing import MaxSumMP, tree_sched
 from pyDPMP.mrf import Factor, MRF
@@ -121,34 +115,8 @@ class DPMPPlanner(ob.Planner):
                   for _ in range(nAdd[v])]
               for v in mrf.nodes}
 
-    # Turn on matplotlib's interactive mode
-    plt.ion()
-
-    plt.figure(figsize=(8, 8))
     def callback(info):
-      print info['iter']
-      x = info['x']
-      xMAP = info['xMAP']
-
-      plt.clf()
-      plt.axis([-2.5, 2.5, -2.5, 2.5])
-      an = np.linspace(0, 2 * np.pi, 100)
-      plt.plot(np.cos(an), np.sin(an))
-
-      particles = [(x_t[0], x_t[1]) for t in range(T) for x_t in x[t]]
-      c = [float(t) / float(T) for t in range(T) for x_t in x[t]]
-      plt.scatter(*zip(*particles), s=10, c=c, marker='x')
-
-      MAPparticles = [start_state] + [xMAP[t] for t in range(T)] + [goal_state]
-      plt.plot(*zip(*[(s[0], s[1]) for s in MAPparticles]), marker='o')
-
-      plt.xlabel('x_1')
-      plt.ylabel('x_2')
-      plt.title('Iter. %d' % info['iter'])
-
-      plt.draw()
-
-      time.sleep(0.25)
+      print info['iter'](0.25)
 
     xMAP, xParticles, stats = DPMP_infer(
       mrf,
@@ -162,9 +130,6 @@ class DPMPPlanner(ob.Planner):
       callback=callback,
       verbose=False)
 
-    # Turn off matplotlib's interactive mode
-    plt.ioff()
-
     path_states = [start_state] + [xMAP[t] for t in range(T)] + [goal_state]
     path = construct_path(si, path_states)
     path_valid = path.check()
@@ -174,72 +139,3 @@ class DPMPPlanner(ob.Planner):
 
   def clear(self):
     super(DPMPPlanner, self).clear()
-
-class ValidityChecker(ob.StateValidityChecker):
-  def __init__(self, si):
-    super(ValidityChecker, self).__init__(si)
-
-  def isValid(self, state):
-    # Convert np.bool_ to standard Python bool
-    return bool(self.clearance(state) > 0.0)
-
-  def clearance(self, state):
-    x = state[0]
-    y = state[1]
-    return np.sqrt(x * x + y * y) - 1
-
-def plan():
-  # create an R^3 state space
-  space = ob.RealVectorStateSpace(2)
-
-  # set lower and upper bounds
-  bounds = ob.RealVectorBounds(2)
-  bounds.setLow(-2.5)
-  bounds.setHigh(2.5)
-  space.setBounds(bounds)
-
-  # create a simple setup object
-  ss = og.SimpleSetup(space)
-  ss.setStateValidityChecker(ValidityChecker(ss.getSpaceInformation()))
-  start = ob.State(space)
-  start()[0] = 0.0
-  start()[1] = -2.0
-  goal = ob.State(space)
-  goal()[0] = 0.0
-  goal()[1] = 2.0
-  ss.setStartAndGoalStates(start, goal, .05)
-
-  # set the planner
-  planner = DPMPPlanner(ss.getSpaceInformation(), 15, 50)
-  ss.setPlanner(planner)
-
-  result = ss.solve(10.0)
-  if result:
-    if result.getStatus() == ob.PlannerStatus.APPROXIMATE_SOLUTION:
-      print("Solution is approximate")
-
-    # try to shorten the path
-    # ss.simplifySolution()
-
-    path = ss.getSolutionPath()
-    print(path)
-    plot_solution(path)
-
-def plot_solution(path):
-  plt.figure(figsize=(8, 8))
-  plt.axis([-2.5, 2.5, -2.5, 2.5])
-  an = np.linspace(0, 2 * np.pi, 100)
-  plt.plot(np.cos(an), np.sin(an))
-
-  points = [(s[0], s[1]) for s in path.getStates()]
-  plt.plot(*zip(*points), marker='o')
-
-  plt.xlabel('x_1')
-  plt.ylabel('x_2')
-  plt.title('Solved path')
-
-  plt.show()
-
-if __name__ == "__main__":
-  ou.RNG.setSeed(1)
-  plan()
