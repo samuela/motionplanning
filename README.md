@@ -1,7 +1,9 @@
 motionplanning
 ==============
 
-This is a repository containing research code attempting to connect pyDPMP and the Open Motion Planning Library (OMPL). More generally, this repository is home-base for an effort to develop new motion planning algorithms built on D-PMP. The code currently reflects my (@samuela aka Sam Ainsworth) personal setup, and may require some tinkering. Feel free to reach out if you have any difficulties or questions!
+This is a repository containing research code attempting to connect pyDPMP and the Open Motion Planning Library (OMPL). More generally, this repository is home-base for an effort to develop new motion planning algorithms built on D-PMP.
+
+The code currently reflects my (@samuela aka Sam Ainsworth) personal setup, and may require some tinkering on other environments. Feel free to reach out if you have any difficulties or questions!
 
 Manifest
 --------
