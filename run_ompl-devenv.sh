@@ -20,9 +20,12 @@ docker run \
   --rm \
   -p 8888:8888 \
   -e DISPLAY=$LOCAL_IP:0 \
-  -v ~/Research/omplapp/:/omplapp \
   -v ~/Research/motionplanning/:/motionplanning \
   -v ~/Research/pyDPMP/:/pyDPMP \
   samuela/ompl-devenv bash -c "pip install -e /pyDPMP && bash"
 
 kill $SOCAT_PID
+
+
+
+  # -v ~/Research/omplapp/:/omplapp \
